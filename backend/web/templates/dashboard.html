@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OS Misbehavior Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>🖥 OS Misbehavior Detection Dashboard</h1>
+    
+    <div class="controls">
+    <div class="attack-form">
+        <h3>Create CPU Attack</h3>
+
+        <label>Intensity (%)</label>
+        <input type="number" id="cpuIntensity" value="90" min="10" max="100">
+
+        <label>Duration (seconds)</label>
+        <input type="number" id="cpuDuration" value="10" min="1">
+
+        <label>Threads</label>
+        <input type="number" id="cpuThreads" value="1" min="1" max="8">
+
+        <button class="btn cpu" onclick="startCpuAttack()">▶ Start CPU Attack</button>
+
+        <hr>
+
+        <h3>Create Memory Attack</h3>
+
+        <label>Allocation per step (MB)</label>
+        <input type="number" id="memChunk" value="50" min="10">
+
+        <label>Interval (seconds)</label>
+        <input type="number" id="memInterval" value="1" step="0.5">
+
+        <label>Duration (seconds)</label>
+        <input type="number" id="memDuration" value="10" min="1">
+
+        <button class="btn memory" onclick="startMemoryAttack()">▶ Start Memory Attack</button>
+
+        <hr>
+
+        <h3>Create Unauthorized Access Attack</h3>
+
+        <label>Attempts per second</label>
+        <input type="number" id="accessRate" value="2" min="1">
+
+        <label>Total attempts</label>
+        <input type="number" id="accessTotal" value="10" min="1">
+
+        <label>Retry delay (seconds)</label>
+        <input type="number" id="accessDelay" value="0.1" step="0.1">
+
+        <label>Violation type</label>
+        <select id="accessType">
+        <option value="FILE_ACCESS">File Access</option>
+        <option value="NETWORK_ACCESS">Network Access</option>
+        <option value="PRIVILEGE_ESCALATION">Privilege Escalation</option>
+        </select>
+
+        <button class="btn access" onclick="startAccessAttack()">▶ Start Access Attack</button>
+
+    </div>
+    
+    <div class="attack-buttons">
+
+        <button class="btn stop" onclick="stopAttacks()">⏹ Stop All Attacks</button>
+    </div>
+</div>
+
+    <div class="charts">
+        <div class="card">
+            <h3>CPU Usage (%)</h3>
+            <canvas id="cpuChart"></canvas>
+        </div>
+        <div class="card">
+            <h3>Memory Usage (MB)</h3>
+            <canvas id="memoryChart"></canvas>
+        </div>
+    </div>
+
+    <div class="panels">
+        <div class="panel alert-panel">
+            <h3>🚨 Alerts</h3>
+            <ul id="alerts"></ul>
+        </div>
+
+        <div class="panel log-panel">
+            <h3>📜 Logs</h3>
+            <ul id="logs"></ul>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
