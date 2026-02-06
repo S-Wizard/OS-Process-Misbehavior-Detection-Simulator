@@ -107,6 +107,9 @@ def start_access_attack():
         "message": f"Unauthorized access attack started ({vtype}, {total} attempts)"
     }
 '''
+shared_data["logs"].append(
+    "[ACTION] User requested stop of all attacks"
+)
 
 @app.route("/api/attack/stop", methods=["POST"])
 def stop_attacks():
@@ -117,9 +120,16 @@ def stop_attacks():
         if pid:
             try:
                 psutil.Process(pid).terminate()
+                shared_data["logs"].append(
+                    f"[ACTION] Attack process {atk.upper()} (PID {pid}) terminated"
+                )
+
             except:
                 pass
             attack_pids[atk] = None
+    shared_data["logs"].append(
+    "[STATUS] System stabilized after stopping attacks"
+    )
 
     return {"message": "All attacks stopped"}
 
@@ -129,12 +139,18 @@ def create_attack():
 
     attack_type = data.get("type")
     params = data.get("params", {})
-
+    shared_data["logs"].append(
+        f"[INFO] User requested {attack_type.upper()} attack"
+    )
     if not attack_type:
         return {"error": "Attack type required"}, 400
 
     try:
         proc = launch_attack(attack_type, params)
+        shared_data["logs"].append(
+            f"[INFO] {attack_type.upper()} process created (PID {proc.pid})"
+        )
+
     except ValueError as e:
         return {"error": str(e)}, 400
 
