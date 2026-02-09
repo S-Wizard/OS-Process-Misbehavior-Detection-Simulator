@@ -6,9 +6,11 @@ import {
   LinearScale,
   PointElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from "chart.js";
-import { useEffect, useState } from "react";
+import { Card, CardHeader, CardTitle } from "./ui/Card";
+import { Cpu, Zap } from "lucide-react";
 
 ChartJS.register(
   LineElement,
@@ -16,28 +18,49 @@ ChartJS.register(
   LinearScale,
   PointElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
-export default function MetricsCharts() {
-  const [cpuData, setCpuData] = useState([]);
-  const [memData, setMemData] = useState([]);
-
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/metrics");
-        const data = await res.json();
-
-        setCpuData(data.cpu || []);
-        setMemData(data.memory || []);
-      } catch (err) {
-        console.error("Failed to fetch metrics", err);
+export default function MetricsCharts({ cpuData = [], memData = [] }) {
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    scales: {
+      x: {
+        display: false,
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: "rgba(255, 255, 255, 0.05)",
+        },
+        ticks: {
+          color: "#64748b",
+          font: { family: "Fira Code" }
+        },
+        border: { display: false }
       }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "#0f172a",
+        titleColor: "#f8fafc",
+        bodyColor: "#cbd5e1",
+        borderColor: "#1e293b",
+        borderWidth: 1,
+        padding: 10,
+        displayColors: false,
+        titleFont: { family: "Inter" },
+        bodyFont: { family: "Fira Code" }
+      }
+    },
+    elements: {
+      point: { radius: 0, hoverRadius: 4 }
+    }
+  };
 
   const cpuChart = {
     labels: cpuData.map((_, i) => i),
@@ -45,8 +68,17 @@ export default function MetricsCharts() {
       {
         label: "CPU Usage (%)",
         data: cpuData,
-        borderColor: "#22d3ee",
-        tension: 0.3
+        borderColor: "#06b6d4", // Cyan
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient.addColorStop(0, "rgba(6, 182, 212, 0.2)"); // Cyan transparent
+          gradient.addColorStop(1, "rgba(6, 182, 212, 0)");
+          return gradient;
+        },
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2
       }
     ]
   };
@@ -57,48 +89,49 @@ export default function MetricsCharts() {
       {
         label: "Memory Usage (MB)",
         data: memData,
-        borderColor: "#a78bfa",
-        tension: 0.3
+        borderColor: "#8b5cf6", // Violet
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient.addColorStop(0, "rgba(139, 92, 246, 0.2)"); // Violet transparent
+          gradient.addColorStop(1, "rgba(139, 92, 246, 0)");
+          return gradient;
+        },
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2
       }
     ]
   };
 
-  const options = {
-  responsive: true,
-  maintainAspectRatio: false,   // 👈 VERY IMPORTANT
-  animation: false,
-  scales: {
-    y: {
-      beginAtZero: true,
-      max: 100
-    }
-  }
-};
-
   return (
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Cpu className="w-5 h-5 text-primary" />
+            CPU Load
+          </CardTitle>
+        </CardHeader>
+        <div className="h-[250px] w-full">
+          <Line data={cpuChart} options={{
+            ...commonOptions,
+            scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, max: 100 } }
+          }} />
+        </div>
+      </Card>
 
-    {/* CPU Chart */}
-    <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 h-[420px]">
-      <h3 className="text-xl font-semibold text-cyan-400 mb-4">
-        CPU Usage (%)
-      </h3>
-      <div className="h-[320px]">
-        <Line data={cpuChart} options={options} />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Zap className="w-5 h-5 text-secondary" />
+            Memory Allocation
+          </CardTitle>
+        </CardHeader>
+        <div className="h-[250px] w-full">
+          <Line data={memChart} options={commonOptions} />
+        </div>
+      </Card>
     </div>
-
-    {/* Memory Chart */}
-    <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 h-[420px]">
-      <h3 className="text-xl font-semibold text-purple-400 mb-4">
-        Memory Usage (MB)
-      </h3>
-      <div className="h-[320px]">
-        <Line data={memChart} options={options} />
-      </div>
-    </div>
-
-  </div>
-);
-
+  );
 }

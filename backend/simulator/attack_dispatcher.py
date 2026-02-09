@@ -12,7 +12,7 @@ def launch_attack(attack_type, params):
             str(intensity),
             str(duration),
             str(threads)
-        ])
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     elif attack_type == "memory":
         chunk = params.get("chunk", 50)
@@ -25,7 +25,7 @@ def launch_attack(attack_type, params):
             str(chunk),
             str(interval),
             str(duration)
-        ])
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     elif attack_type == "access":
         rate = params.get("rate", 2)

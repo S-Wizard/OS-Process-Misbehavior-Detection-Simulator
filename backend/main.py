@@ -1,7 +1,9 @@
 import threading
 import time
-from detector.child_detector import monitor_child_process
-from web.app import app  # Flask app
+from detector.anomaly_detector import detect_resource_abuse
+from app import create_app
+
+app = create_app()
 
 def run_flask():
     app.run(debug=False, use_reloader=False)
@@ -11,7 +13,7 @@ def main():
 
     # Start detector
     detector_thread = threading.Thread(
-        target=monitor_child_process,
+        target=detect_resource_abuse,
         daemon=True
     )
     detector_thread.start()
